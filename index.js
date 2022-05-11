@@ -1,26 +1,17 @@
 import express, {json} from 'express';
-import {MongoClient} from 'mongodb';
 import joi from 'joi';
 import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
+
+import db from './db.js';
+
 
 const app = express();
 dotenv.config();
 app.use(json());
 
-let db = null;
-const mongoClient = new MongoClient(process.env.MONGO_URL);
-
-try {
-    await mongoClient.connect();
-    db = mongoClient.db(process.env.DATABASE);
-    console.log('Connected to MongoDB');
-} catch (error) {
-    console.log ('Error connecting to MongoDB:', error);
-}
-
-
 //cadastro
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
 const {name, email, password, confirmPassword} = req.body;
 
     //validação -> joi
@@ -34,7 +25,19 @@ const {name, email, password, confirmPassword} = req.body;
     if(error) {
         return res.status(422).send(error.details.map (detail => detail.message));
     }
-
+ try {
+    const SALT = 10;
+    const hashedPassword = await bcrypt.hash(password, SALT);
+     await db.collection('users').insertOne({
+            name,
+            email,
+            password: hashedPassword
+     });
+        res.send('Usuário cadastrado com sucesso!');
+ } catch (error) {
+     console.log(error);
+     return res.status(500).send('Erro ao cadastrar usuário');
+ }
    
 });
 
