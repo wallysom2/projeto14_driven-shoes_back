@@ -31,8 +31,9 @@ app.post('/signin', async (req, res) => {
         if (user && bcrypt.compareSync(req.body.password, user.password)) {
             const token = uuid();
             await db.collection('sessions').insertOne({ token, userId: user._id });
-            res.send({ token, name: user.name });
+           return res.send({ token, name: user.name });
         }
+        return res.status(440).send('Invalid email or password');
     } catch (error) {
         console.log(error);
         return res.status(500).send('Erro ao tentar logar o usuário');
@@ -42,7 +43,6 @@ app.post('/signin', async (req, res) => {
 //cadastro
 app.post('/signup', async (req, res) => {
 
-    //validação -> joi
     const signUpSchema = joi.object({
         name: joi.string().required(),
         email: joi.string().email().required(),
