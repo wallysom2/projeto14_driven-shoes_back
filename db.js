@@ -1,6 +1,6 @@
 
 import dotenv from 'dotenv';
-import {MongoClient} from 'mongodb';
+import { MongoClient } from 'mongodb';
 
 dotenv.config();
 
@@ -12,7 +12,7 @@ try {
     db = mongoClient.db(process.env.DATABASE);
     console.log('Connected to MongoDB');
 } catch (error) {
-    console.log ('Error connecting to MongoDB:', error);
+    console.log('Error connecting to MongoDB:', error);
 }
 
 export default db;
